@@ -115,11 +115,11 @@ private getState(String value) {
 }
 
 def refresh() { 
-	 log.info("Device Refresh")
+	 log.info("Whistle presence device Refresh Request")
     callAPI()
 }
 def poll() { 
-	 log.info("Device Poll / Scheduled Refresh")
+	 log.info("Whistle presence device Poll Request or Scheduled Poll")
     callAPI()
 }
 
@@ -134,7 +134,7 @@ private def callAPI() {
             runIn (refreshTime, poll)
             log.debug "Data will repoll every ${refreshRate} minutes"   
         }
-        else log.debug "Data will never repoll"   
+        else log.debug "Data will never automatically repoll"   
     
         def accessToken = getAPIkey()
         
@@ -152,6 +152,7 @@ private def callAPI() {
                 "User-Agent": "Winston/2.5.3 (iPhone; iOS 12.0.1; Build:1276; Scale/2.0)" ],
                       ]
       try {
+      	log.debug "Starting HTTP GET request to Whistle API"
     	httpGet(params) { resp ->
   //  		if (resp.data) {
   //      		log.debug "Response Data = ${resp.data}"
@@ -162,7 +163,7 @@ private def callAPI() {
   //				}
   //      	}
         	if(resp.status == 200) {
-	        	log.debug "Request was OK, getting data from Whistle"
+	        	log.debug "Request to Whistle API was OK, parsing data"
   
                 def batt = resp.data.pet.device.battery_level
                 log.debug "Updating Whistle battery status to ${batt}%"
