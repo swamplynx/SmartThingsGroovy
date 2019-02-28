@@ -115,11 +115,11 @@ private getState(String value) {
 }
 
 def refresh() { 
-	 log.info("Whistle presence device Refresh Request")
+	 log.info("Whistle presence status Refresh Requested")
     callAPI()
 }
 def poll() { 
-	 log.info("Whistle presence device Poll Request or Scheduled Poll")
+	 log.info("Whistle presence status Poll Request or Scheduled Poll")
     callAPI()
 }
 
@@ -170,15 +170,20 @@ private def callAPI() {
                 sendEvent(name:"battery", value: batt, unit: "%")
                 
                 def locationIDnum = resp.data.pet.last_location.place.id.toInteger()
+                def locationStatus = resp.data.pet.last_location.place.status.toString()
                 def homeIDnum = "${homeID}".toInteger()
-                log.debug "Current Pet Location ID is ${locationIDnum}"
+                
                 log.debug "Current Home ID is ${homeIDnum}"
-                if (locationIDnum.equals(homeIDnum)) {
+                log.debug "Current Pet Location ID is ${locationIDnum}"
+                log.debug "Current Pet Location Status is ${locationStatus}"
+               
+                
+                if (locationIDnum.equals(homeIDnum) && locationStatus.equals("in_beacon_range")) {
                                 sendEvent(name: "presence", value: "present")
-                                log.debug "Pet is at Home, Updating Presence to Present"
+                                log.debug "Pet is Home, Updating Presence to Present"
                             } else {
                                 sendEvent(name: "presence", value: "not present")
-                                log.debug "Pet is NOT at Home, Updating Presence to Not Present"
+                                log.debug "Pet is NOT Home, Updating Presence to Not Present"
                             }
             
     		}
