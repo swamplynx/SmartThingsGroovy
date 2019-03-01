@@ -16,7 +16,7 @@ preferences {
         input "token", "text", title: "Whistle Token", description: "Whistle Login Token", required: true
         input "petID", "number", title: "Whistle Pet ID", description: "Whistle Pet ID #", required: true
         input "homeID", "number", title: "Whistle Home ID", description: "Whistle Home ID #", required: true
-        input "refreshRate", "enum", title: "Data Refresh Rate", defaultValue: 0, options:[0: "Never", 10: "Every 10 Minutes", 15: "Every 15 Minutes", 20: "Every 20 Minutes", 30: "Every 30 Minutes", 60: "Every Hour"], displayDuringSetup: true
+        input "refreshRate", "enum", title: "Data Refresh Rate", defaultValue: 0, options:[0: "Never", 1: "Every Minute", 2: "Every 2 Minutes", 5: "Every 5 Minutes", 10: "Every 10 Minutes", 20: "Every 20 Minutes"], displayDuringSetup: true
 		}
 
 metadata {
@@ -124,7 +124,7 @@ def poll() {
 }
 
 def scheduledPoll() { 
-	 log.info("Whistle presence status Scheduled Poll")
+	 log.info("Whistle presence status Scheduled Refresh")
     callAPI()
 }
 
@@ -183,7 +183,7 @@ private def callAPI() {
                 log.debug "Current Pet Location Status is ${locationStatus}"
                
                 
-                if (locationIDnum.equals(homeIDnum) && locationStatus.equals("in_beacon_range")) {
+                if (locationIDnum.equals(homeIDnum) && locationStatus.equals("in_beacon_range" || "in_geofence_range")) {
                                 sendEvent(name: "presence", value: "present")
                                 log.debug "Pet is Home, Updating Presence to Present"
                             } else {
