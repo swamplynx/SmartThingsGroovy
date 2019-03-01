@@ -27,8 +27,6 @@ metadata {
         capability "Battery"
         capability "Refresh"
         capability "Polling"
-        
-        command "triggeredRefresh"
 	}
 
 	simulator {
@@ -124,10 +122,7 @@ def poll() {
 	 log.info("Whistle presence status Poll Requested")
     callAPI()
 }
-def triggeredRefresh() { 
-	 log.info("Whistle presence status Triggered Refresh Requested")
-    callAPI()
-}
+
 def scheduledPoll() { 
 	 log.info("Whistle presence status Scheduled Poll")
     callAPI()
