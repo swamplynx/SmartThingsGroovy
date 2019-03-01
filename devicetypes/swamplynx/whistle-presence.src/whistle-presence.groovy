@@ -115,16 +115,16 @@ private getState(String value) {
 }
 
 def refresh() { 
-	 log.info("Whistle presence status Refresh Requested")
+	 log.info("Whistle Presence Refresh Requested")
     callAPI()
 }
 def poll() { 
-	 log.info("Whistle presence status Poll Requested")
+	 log.info("Whistle Presence Poll Requested")
     callAPI()
 }
 
 def scheduledPoll() { 
-	 log.info("Whistle presence status Scheduled Refresh")
+	 log.info("Whistle Presence starting Scheduled Refresh")
     callAPI()
 }
 
