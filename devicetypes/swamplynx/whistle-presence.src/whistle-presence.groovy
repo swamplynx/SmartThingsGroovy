@@ -172,7 +172,7 @@ private def callAPI() {
   
                 def batt = resp.data.pet.device.battery_level
                 log.debug "Updating Whistle battery status to ${batt}%"
-                sendEvent(name:"battery", value: batt, unit: "%", isStateChange: true)
+                sendEvent(name:"battery", value: batt, unit: "%")
                 
                 def locationIDnum = resp.data.pet.last_location.place.id.toInteger()
                 def locationStatus = resp.data.pet.last_location.place.status.toString()
