@@ -171,7 +171,7 @@ private def callAPI() {
 	        	log.debug "Request to Whistle API was OK, parsing data"
   
                 def batt = resp.data.pet.device.battery_level
-                log.debug "Updating Whistle battery status to ${batt}%"
+                log.info "Whistle battery status is ${batt}%"
                 sendEvent(name:"battery", value: batt, unit: "%")
                 
                 def locationIDnum = resp.data.pet.last_location.place.id.toInteger()
@@ -185,15 +185,15 @@ private def callAPI() {
                 
                 if (locationIDnum.equals(homeIDnum) && locationStatus.equals("in_beacon_range")) {
                                 sendEvent(name: "presence", value: "present")
-                                log.debug "Pet is Home on WiFi Beacon, Updating Presence to Present"
+                                log.info "Pet is on Home WiFi Beacon, Updating Presence to Present"
                             } 
                 else if (locationIDnum.equals(homeIDnum) && locationStatus.equals("in_geofence_range")) {
                                 sendEvent(name: "presence", value: "present")
-                                log.debug "Pet is Home inside Geofence, Updating Presence to Present"
+                                log.info "Pet inside Home Geofence, Updating Presence to Present"
                             } 
                             else {
                                 sendEvent(name: "presence", value: "not present")
-                                log.debug "Pet is NOT Home, Updating Presence to Not Present"
+                                log.info "Pet is NOT Home, Updating Presence to Not Present"
                             }
             
     		}
