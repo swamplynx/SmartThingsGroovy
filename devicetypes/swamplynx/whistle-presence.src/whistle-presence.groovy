@@ -27,6 +27,8 @@ metadata {
         capability "Battery"
         capability "Refresh"
         capability "Polling"
+        
+        command "triggeredRefresh"
 	}
 
 	simulator {
@@ -119,7 +121,15 @@ def refresh() {
     callAPI()
 }
 def poll() { 
-	 log.info("Whistle presence status Poll Request or Scheduled Poll")
+	 log.info("Whistle presence status Poll Requested")
+    callAPI()
+}
+def triggeredRefresh() { 
+	 log.info("Whistle presence status Triggered Refresh Requested")
+    callAPI()
+}
+def scheduledPoll() { 
+	 log.info("Whistle presence status Scheduled Poll")
     callAPI()
 }
 
@@ -131,7 +141,7 @@ private def callAPI() {
     if (petID){
         def refreshTime =  refreshRate ? (refreshRate as int) * 60 : 0
         if (refreshTime > 0) {
-            runIn (refreshTime, poll)
+            runIn (refreshTime, scheduledPoll)
             log.debug "Data will repoll every ${refreshRate} minutes"   
         }
         else log.debug "Data will never automatically repoll"   
