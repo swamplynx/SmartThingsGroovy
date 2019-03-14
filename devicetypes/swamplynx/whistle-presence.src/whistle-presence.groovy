@@ -13,7 +13,8 @@
  */
 
 preferences {
-        input "token", "text", title: "Whistle Token", description: "Whistle Login Token", required: true
+        input "email", "text", title: "Whistle E-Mail", description: "E-Mail", required: true
+        input "password", "password", title: "Whistle Password", description: "Password", required: true
         input "petID", "number", title: "Whistle Pet ID", description: "Whistle Pet ID #", required: true
         input "homeID", "number", title: "Whistle Home ID", description: "Whistle Home ID #", required: true
         input "refreshRate", "enum", title: "Data Refresh Rate", defaultValue: 0, options:[0: "Never", 1: "Every Minute", 2: "Every 2 Minutes", 5: "Every 5 Minutes", 10: "Every 10 Minutes", 20: "Every 20 Minutes"], displayDuringSetup: true
@@ -129,7 +130,7 @@ def scheduledPoll() {
 }
 
 def getAPIkey() {
-	return "Bearer ${token}"
+	return "Bearer ${state.token}"
 }
 
 private def callAPI() {
@@ -157,18 +158,10 @@ private def callAPI() {
                 "User-Agent": "Winston/2.5.3 (iPhone; iOS 12.0.1; Build:1276; Scale/2.0)" ],
                       ]
       try {
-      	log.debug "Starting HTTP GET request to Whistle API"
-    	httpGet(params) { resp ->
-  //  		if (resp.data) {
-  //      		log.debug "Response Data = ${resp.data}"
-  //      		log.debug "Response Status = ${resp.status}"
-  //
-  //            resp.headers.each {
-  //			log.debug "header: ${it.name}: ${it.value}"
-  //				}
-  //      	}
+      	log.debug "Starting HTTP GET request to Whistle Data API"
+    	httpGet(params) { resp ->                
         	if(resp.status == 200) {
-	        	log.debug "Request to Whistle API was OK, parsing data"
+	        	log.debug "Request to Whistle Data API was OK, parsing data"
   
                 def batt = resp.data.pet.device.battery_level
                 log.info "Whistle battery status is ${batt}%"
@@ -182,7 +175,6 @@ private def callAPI() {
                 log.debug "Current Pet Location ID is ${locationIDnum}"
                 log.debug "Current Pet Location Status is ${locationStatus}"
                
-                
                 if (locationIDnum.equals(homeIDnum) && locationStatus.equals("in_beacon_range")) {
                                 sendEvent(name: "presence", value: "present")
                                 log.info "Pet is on Home WiFi Beacon, Updating Presence to Present"
@@ -197,15 +189,56 @@ private def callAPI() {
                             }
             
     		}
-            
-        	else {
-        		log.error "Request got HTTP status ${resp.status}"
+            else {
+        		log.error "Data Request got HTTP status ${resp.status}"
         	}
+      
         }
-    } catch(e)
-    {
-    	log.debug e
+    } catch(e) {
+    	if (e.message.equals("Unauthorized")) {
+        log.debug "User unauthorized, requesting new token"
+        callAPIauth()
+        }
+        else {
+        log.error "Something went wrong with the data API call $e"
+        }
     }
 }
-       else log.debug "The Pet ID missing from the device settings"
+       else {
+       log.debug "Pet ID is missing from the settings"
+      }
    }
+   
+private def callAPIauth() {
+				def authparams = [
+            			uri: "https://app.whistle.com",
+            			path: "/api/login",
+            				contentType: "application/json",
+            				headers: [
+                				"Accept": "application/vnd.whistle.com.v4+json",
+                				"Content-Type": "multipart/form-data",
+                				"Connection": "keep-alive",
+                				"Accept-Language": "en-us",
+                				"Accept-Encoding": "br, gzip, deflate",
+                				"User-Agent": "Winston/2.5.3 (iPhone; iOS 12.0.1; Build:1276; Scale/2.0)" ],
+          				 body: [
+           						"email": "${email}",
+                				"password": "${password}" ],
+                						]		
+      		try {
+      			log.debug "Starting HTTP POST Login request to Whistle Login API"
+    			httpPost(authparams) { resp ->
+
+ 					if(resp.status == 201) {
+	        			log.debug "Request to Whistle Login API was OK, storing token and calling Data API"
+                        state.token = resp.data.auth_token
+                        callAPI()
+                        					}
+                   else {
+        		log.error "Login Request got HTTP status ${resp.status}"
+        	}
+               						 }				
+     } catch(e) {
+    	log.error "Something went wrong with the login token API call $e"
+    }
+}
