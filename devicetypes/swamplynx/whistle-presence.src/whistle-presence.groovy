@@ -17,7 +17,6 @@ preferences {
         input "password", "password", title: "Whistle Password", description: "Password", required: true
         input "petID", "number", title: "Whistle Pet ID", description: "Whistle Pet ID #", required: true
         input "homeID", "number", title: "Whistle Home ID", description: "Whistle Home ID #", required: true
-        input "refreshRate", "enum", title: "Data Refresh Rate", defaultValue: 0, options:[0: "Never", 1: "Every Minute", 2: "Every 2 Minutes", 5: "Every 5 Minutes", 10: "Every 10 Minutes", 20: "Every 20 Minutes"], displayDuringSetup: true
 		}
 
 metadata {
@@ -117,11 +116,13 @@ private getState(String value) {
 
 def refresh() { 
 	 log.info("Whistle Presence Refresh Requested")
+     runEvery1Minute (poll)
+     log.debug "Data will repoll every minute" 
     callAPI()
 }
 def poll() { 
-	 log.info("Whistle Presence Poll or Scheduled Poll Requested")
-    callAPI()
+	log.info("Whistle Presence Poll or Scheduled Poll Requested")
+   callAPI()
 }
 
 def getAPIkey() {
@@ -130,16 +131,7 @@ def getAPIkey() {
 
 private def callAPI() {
     if (petID){
-        def refreshTime =  refreshRate ? (refreshRate as int) * 60 : 0
-        if (refreshTime > 0) {
-            runIn (refreshTime, poll)
-            runEvery15Minutes (poll)
-            log.debug "Data will repoll every ${refreshRate} minutes, and kickstart every 15 minutes"   
-        }
-        else log.debug "Data will never automatically repoll"   
-    
         def accessToken = getAPIkey()
-        
         def params = [
             uri: "https://app.whistle.com",
             path: "/api/pets/${petID}",
