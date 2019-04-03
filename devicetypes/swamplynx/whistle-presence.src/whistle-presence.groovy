@@ -120,12 +120,7 @@ def refresh() {
     callAPI()
 }
 def poll() { 
-	 log.info("Whistle Presence Poll Requested")
-    callAPI()
-}
-
-def scheduledPoll() { 
-	 log.info("Whistle Presence starting Scheduled Refresh")
+	 log.info("Whistle Presence Poll or Scheduled Poll Requested")
     callAPI()
 }
 
@@ -137,8 +132,9 @@ private def callAPI() {
     if (petID){
         def refreshTime =  refreshRate ? (refreshRate as int) * 60 : 0
         if (refreshTime > 0) {
-            runIn (refreshTime, scheduledPoll)
-            log.debug "Data will repoll every ${refreshRate} minutes"   
+            runIn (refreshTime, poll)
+            runEvery15Minutes (poll)
+            log.debug "Data will repoll every ${refreshRate} minutes, and kickstart every 15 minutes"   
         }
         else log.debug "Data will never automatically repoll"   
     
