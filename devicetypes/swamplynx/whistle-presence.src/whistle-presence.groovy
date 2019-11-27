@@ -20,7 +20,7 @@ preferences {
 		}
 
 metadata {
-	definition (name: "Whistle Presence", namespace: "swamplynx", author: "SwampLynx",mnmn:"SmartThings", vid:"generic-arrival") {
+	definition (name: "Whistle Presence", namespace: "swamplynx", author: "SwampLynx", mnmn:"SmartThings", vid:"generic-arrival") {
 		capability "Presence Sensor"
 		capability "Occupancy Sensor"
 		capability "Sensor"
