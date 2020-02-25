@@ -408,13 +408,14 @@ private updateChildDeviceAirData(UUID, airLatestData) {
 
         airLatestData.sensors.each {
             switch (it.comp) {
-                case "temp":
-                Double tempDouble = it.value
-                childDevice?.sendEvent(name: "temperature", value: tempDouble.round(1), unit: getTemperatureScale())
+             	case "temp":
+                	def tmp = it.value.toDouble()
+                	def tempValue = 9 * (tmp / 5) + 32
+                childDevice?.sendEvent(name: "temperature", value: tempValue.round(1) as Integer, unit: "F")
                 break
                 case "humid": childDevice?.sendEvent(name: "humidity", value: it.value as Integer, unit: "%"); break
                 case "co2": 
-                def co2ppm = it.value as Integer
+                	def co2ppm = it.value as Integer
                 childDevice?.co2homekitNotice(co2ppm)
                 childDevice?.sendEvent(name: "carbonDioxide", value: co2ppm, unit: "ppm"); break;
                 case "voc": childDevice?.sendEvent(name: "tvocLevel", value: it.value as Integer, unit: "ppb"); break;
