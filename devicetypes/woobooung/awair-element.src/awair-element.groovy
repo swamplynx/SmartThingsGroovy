@@ -620,6 +620,6 @@ def pullData() {
     parent.pullAirData(device.deviceNetworkId)
     parent.pullDisplayMode(device.deviceNetworkId)
     parent.pullLedMode(device.deviceNetworkId)
-    parent.pullKnockingMode(device.deviceNetworkId)
+    //parent.pullKnockingMode(device.deviceNetworkId)
     //parent.pullPowerStatus(device.deviceNetworkId)
 }
