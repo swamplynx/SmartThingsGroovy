@@ -20,9 +20,8 @@ preferences {
 		}
 
 metadata {
-	definition (name: "Whistle Presence", namespace: "swamplynx", author: "SwampLynx", mnmn:"SmartThings", vid:"generic-arrival") {
+	definition (name: "Whistle Presence", namespace: "swamplynx", author: "SwampLynx", mnmn:"SmartThings", cstHandler:true, vid:"generic-arrival", ocfDeviceType:"x.com.st.d.sensor.presence") {
 		capability "Presence Sensor"
-		capability "Occupancy Sensor"
 		capability "Sensor"
         capability "Battery"
         capability "Refresh"
