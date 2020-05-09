@@ -44,7 +44,7 @@ metadata {
         valueTile("battery", "device.battery", inactiveLabel: false, decoration: "flat", width: 1, height: 1) {
 			state("battery", label:'${currentValue}% battery', unit:"")
 		}
-        standardTile("refresh", "device.weather", decoration: "flat", width: 1, height: 1) {
+        standardTile("refresh", "", decoration: "flat", width: 1, height: 1) {
             state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
         }
 		main (["presence", "battery", "refresh"])
@@ -52,7 +52,7 @@ metadata {
 	}
 }
 
-def parse(String description) {
+def generatePresenceEvent(String description) {
 	def name = parseName(description)
 	def value = parseValue(description)
 	def linkText = getLinkText(device)
@@ -61,7 +61,6 @@ def parse(String description) {
 	def isStateChange = isStateChange(device, name, value)
 
 	def results = [
-    	translatable: true,
 		name: name,
 		value: value,
 		unit: null,
@@ -72,46 +71,58 @@ def parse(String description) {
 		displayed: displayed(description, isStateChange)
 	]
 	log.debug "Parse returned $results.descriptionText"
-	return results
+    	if (isStateChange)
+    		{
+            log.debug "Updating Presence State"
+  			sendEvent (results)
+            }
+       else
+       		{
+            log.debug "No Update to Presence"
+            }
 }
 
 private String parseName(String description) {
 	if (description?.startsWith("presence: ")) {
 		return "presence"
-	} else if (description?.startsWith("occupancy: ")) {
-		return "occupancy"
 	}
 	null
 }
 
 private String parseValue(String description) {
-	switch(description) {
-		case "presence: 1": return "present"
-		case "presence: 0": return "not present"
-		case "occupancy: 1": return "occupied"
-		case "occupancy: 0": return "unoccupied"
-		default: return description
+	if (description?.startsWith("presence: "))
+	{
+		if (description?.endsWith("1"))
+		{
+			return "present"
+		}
+		else if (description?.endsWith("0"))
+		{
+			return "not present"
+		}
 	}
+
+	description
 }
 
 private parseDescriptionText(String linkText, String value, String description) {
 	switch(value) {
-		case "present": return "{{ linkText }} has arrived"
-		case "not present": return "{{ linkText }} has left"
-		case "occupied": return "{{ linkText }} is inside"
-		case "unoccupied": return "{{ linkText }} is away"
+		case "present": return "$linkText has arrived"
+		case "not present": return "$linkText has left"
 		default: return value
 	}
 }
 
 private getState(String value) {
-	switch(value) {
-		case "present": return "arrived"
-		case "not present": return "left"
-		case "occupied": return "inside"
-		case "unoccupied": return "away"
-		default: return value
+	def state = value
+	if (value == "present") {
+		state = "arrived"
 	}
+	else if (value == "not present") {
+		state = "left"
+	}
+
+	state
 }
 
 def refresh() { 
@@ -153,7 +164,7 @@ private def callAPI() {
   
                 def batt = resp.data.pet.device.battery_level
                 log.info "Whistle battery status is ${batt}%"
-                sendEvent(name:"battery", value: batt, unit: "%")
+                sendEvent(name:"battery", value: batt, unit: "%", displayed: false)
                 
                 def locationIDnum = resp.data.pet.last_location.place.id.toInteger()
                 def locationStatus = resp.data.pet.last_location.place.status.toString()
@@ -164,16 +175,19 @@ private def callAPI() {
                 log.debug "Current Pet Location Status is ${locationStatus}"
                
                 if (locationIDnum.equals(homeIDnum) && locationStatus.equals("in_beacon_range")) {
-                                sendEvent(name: "presence", value: "present")
-                                log.info "Pet is on Home WiFi Beacon, Updating Presence to Present"
+                                log.info "Pet is on Home WiFi Beacon"
+                                def presenceState = "presence: 1"
+                                generatePresenceEvent(presenceState)
                             } 
                 else if (locationIDnum.equals(homeIDnum) && locationStatus.equals("in_geofence_range")) {
-                                sendEvent(name: "presence", value: "present")
-                                log.info "Pet inside Home Geofence, Updating Presence to Present"
+                                log.info "Pet inside Home Geofence"
+                                def presenceState = "presence: 1"
+                                generatePresenceEvent(presenceState)
                             } 
                             else {
-                                sendEvent(name: "presence", value: "not present")
-                                log.info "Pet is NOT Home, Updating Presence to Not Present"
+                                log.info "Pet is NOT Home"                                
+                                def presenceState = "presence: 0"
+                                generatePresenceEvent(presenceState)
                             }
             
     		}
