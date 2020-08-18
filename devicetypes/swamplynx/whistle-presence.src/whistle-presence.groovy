@@ -126,6 +126,11 @@ private getState(String value) {
 	state
 }
 
+def installed() {
+     log.info("Whistle DTH Installed, refreshing and scheduling poll")
+     refresh()
+}
+
 def refresh() { 
 	 log.info("Whistle Presence Refresh Requested")
      runEvery1Minute (poll)
