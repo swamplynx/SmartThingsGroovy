@@ -457,9 +457,12 @@ def pullDisplayMode(UUID) {
 private updateChildDeviceDisplayMode(UUID, responseData) {
     def childDevice = getChildDevice(UUID)
 
-    if (responseData) {
+    if (responseData != null) {
         log.debug "updateChildDeviceDisplayMode : ${responseData}"
         childDevice?.sendEvent(name: "displayMode", value: responseData.mode)
+    }
+     else {
+       log.debug "updateChildDeviceDisplayMode : Not Supported"
     }
 }
 
@@ -471,12 +474,15 @@ def pullLedMode(UUID) {
 private updateChildDeviceLedMode(UUID, responseData) {
     def childDevice = getChildDevice(UUID)
 
-    if (responseData) {
+    if (responseData != null) {
         log.debug "updateChildDeviceLedMode : ${responseData}"
         childDevice?.sendEvent(name: "ledMode", value: responseData.mode.toUpperCase())
         if (responseData.mode.toUpperCase() == "MANUAL") {
             childDevice?.sendEvent(name: "ledLevel", value: responseData.brightness as Integer)
         }
+    }
+    else {
+       log.debug "updateChildDeviceLedMode : Not Supported"
     }
 }
 
@@ -488,9 +494,12 @@ def pullKnockingMode(UUID) {
 private updateChildDeviceKnockingMode(UUID, responseData) {
     def childDevice = getChildDevice(UUID)
 
-    if (responseData) {
+    if (responseData != null) {
         log.debug "updateChildDeviceKnockingMode : ${responseData}"
         childDevice?.sendEvent(name: "knockingMode", value: responseData.mode.toUpperCase())
+    }
+    else {
+       log.debug "updateChildDeviceKnockingMode : Not Supported"
     }
 }
 
@@ -503,11 +512,14 @@ def pullPowerStatus(UUID) {
 private updateChildDevicePowerData(UUID, responseData) {
     def childDevice = getChildDevice(UUID)
 
-    if (responseData) {
+    if (responseData != null) {
         log.debug "updateChildDevicePowerData : ${responseData}"
 
         childDevice?.sendEvent(name: "powerSource", value: responseData.plugged ? "dc" : "battery", displayed: true)
         childDevice?.sendEvent(name: "battery", value: responseData.plugged ? 100 : responseData.percentage as Integer, unit: "%", displayed: true)
+    }
+    else {
+       log.debug "updateChildDevicePowerData : Not Supported"
     }
 }
 
@@ -524,14 +536,18 @@ private getResponseData(UUID, endpoint) {
     ]
 
     def responseData = null
-    try {
+  try {
         httpGet(params) { resp ->
             log.debug "${resp.data}"
             responseData = resp.data
         }
     } catch (e) {
+     if (e.message.equals("Bad Request")) {
+        log.debug "Bad Request, endpoint: ${endpoint}, feature not supported"
+        }
+        else {
         log.error e
+        }
     }
-
     return responseData
 }
