@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
 import groovy.json.JsonSlurper
 
 metadata {
-    definition(name: "Awair-R2", namespace: "WooBooung", author: "Booung", mnmn: "SmartThings", vid: "SmartThings-smartthings-Awair", ocfDeviceType: "x.com.st.d.airqualitysensor") {
+    definition(name: "Awair-R2", namespace: "WooBooung", author: "Booung", vid: "5f1a0db2-5ba5-31bf-abe5-230735eabf08", mnmn: "SmartThingsCommunity", ocfDeviceType: "x.com.st.d.airqualitysensor") {
         capability "Air Quality Sensor" // Awair Score
         capability "Carbon Dioxide Measurement" // co : clear, detected
         capability "Fine Dust Sensor"
