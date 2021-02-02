@@ -17,7 +17,7 @@
  *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
  *  for the specific language governing permissions and limitations under the License.
- *
+ *  //testing for Smartthings-to-github
  */
 
 import java.util.TimeZone
@@ -234,7 +234,7 @@ def login() {
 			} else {
 				log.error("getJWT: 'Unexpected' Response: ${resp?.status}: ${resp?.data}")
 			}
-		}
+		}//end of rep
 	} catch (ex) {
 		log.error("getJWT Exception:", ex)
 	}
@@ -314,8 +314,12 @@ def pollSLAlert() {
         try {
             httpGet(params) {resp ->
     			logger("Flume SM pollSLAlert resp.data: ${resp.data}","debug")
+				
+				
                 def resp_data = resp.data
               
+			  
+				if (resp.status == 200){//successful retrieve
                 log.debug ("begin: pollSLAlert() resp_data line 272 begin ${resp_data} end")
                
                 	def myLowWaterFlowAlert = null
@@ -346,7 +350,14 @@ def pollSLAlert() {
                         state.inAlert =  false
                     }
                 }
-            }
+				
+				}
+                    else{
+                     log.debug("fail httpPostJson(params)")
+                    }
+				
+				
+            }// end of resp
         } catch (e) {
     		logger("line 304 Flume SM pollSLAlert error retrieving alerts: '${e}'","error")
         }
@@ -547,10 +558,7 @@ log.debug("jsonBuilder.toPrettyString() '${jsonBuilder.toPrettyString()}'")
                     log.debug("**determineFlows** resp_data success 200 '${resp_data}'")
                     //log.debug("resp_data.data'${resp_data.data}'")
                    // log.debug("resp_data.data.today.value '${resp_data.data.today.value}'")        //.value returns [[0]] .value[0] returns [0]
-                     }
-                    else{
-                     log.debug("fail httpPostJson(params)")
-                    }
+                  
                     
                 //this should have worked? log.debug("resp.status '${resp.status}'")
     			//logger("Flume SM determineFlows resp.data: ${resp.data}","debug")
@@ -596,8 +604,13 @@ log.debug("jsonBuilder.toPrettyString() '${jsonBuilder.toPrettyString()}'")
         //Nov 24 End
                  
                  //state.unitsFlow = resp_data?.units
+				 
+				    }
+                    else{
+                     log.debug("fail httpPostJson(params)")
+                    }
                 
-            }
+            } //end of response
         } catch (e) {
     		logger("Flume SM determineFlows error retrieving summary data e= ${e}","error")
             
