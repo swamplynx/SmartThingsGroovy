@@ -1,9 +1,9 @@
-/**
+/** 
  *  OneApp Flume Water Flow DH
  *  Device Handler for Flume Water Flow Meter: Cloud Connected Device; created by Flume Water Flow Service Manager/ SmartApp
  *  Version 2.0 OneApp
  *
- *  Copyright 2019 windsurfer99, getterdone
+ *  Copyright 2021 windsurfer99, getterdone
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License. You may obtain a copy of the License at:
